@@ -1,4 +1,0 @@
-Changes in this commit:
-
-- Staged modification: ommit_message.txt
-- Added: auto_commit.py
