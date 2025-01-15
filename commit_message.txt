@@ -1,6 +1,4 @@
-I see that there are some changes in the repository:
+Changes in this commit:
 
-1. README.md has been deleted
-2. git_commit_helper.py has been deleted
-
-These deletions appear to be cleaning up the repository structure. This commit removes unnecessary files from the project.
+- Staged modification: ommit_message.txt
+- Added: auto_commit.py
