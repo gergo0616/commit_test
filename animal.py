@@ -71,6 +71,75 @@ class Animal:
         else:
             print(f"{self.name} is in good health!")
 
+class Bird(Animal):
+    def __init__(self, name: str, species: str, age_years: int, wingspan: float):
+        super().__init__(name, species, age_years)
+        self.wingspan = wingspan
+        self.is_flying = False
+        
+    def fly(self) -> None:
+        """Make the bird fly."""
+        if self.energy < 20:
+            print(f"{self.name} is too tired to fly!")
+            return
+        
+        self.is_flying = True
+        self.energy = max(0, self.energy - 10)
+        print(f"{self.name} is now flying!")
+        
+    def land(self) -> None:
+        """Make the bird land."""
+        if not self.is_flying:
+            print(f"{self.name} is already on the ground!")
+            return
+            
+        self.is_flying = False
+        print(f"{self.name} has landed safely.")
+
+class Parrot(Bird):
+    def __init__(self, name: str, age_years: int, vocabulary: List[str] = None):
+        super().__init__(name, "Parrot", age_years, wingspan=20.0)
+        self.vocabulary = vocabulary or []
+        self.favorite_foods = ["seeds", "fruits", "nuts"]
+        
+    def speak(self, word: str) -> None:
+        """Make the parrot speak a word from its vocabulary."""
+        if word in self.vocabulary:
+            print(f"{self.name} says: {word}")
+        else:
+            print(f"{self.name} doesn't know how to say '{word}'")
+            
+    def learn_word(self, word: str) -> None:
+        """Teach the parrot a new word."""
+        if word not in self.vocabulary:
+            self.vocabulary.append(word)
+            print(f"{self.name} learned to say '{word}'!")
+
+class Eagle(Bird):
+    def __init__(self, name: str, age_years: int):
+        super().__init__(name, "Eagle", age_years, wingspan=200.0)
+        self.favorite_foods = ["fish", "small mammals"]
+        self.hunting_success_rate = 0.8
+        
+    def hunt(self) -> bool:
+        """Make the eagle hunt for prey."""
+        if self.energy < 30:
+            print(f"{self.name} is too tired to hunt!")
+            return False
+            
+        import random
+        success = random.random() < self.hunting_success_rate
+        
+        if success:
+            self.hunger = max(0, self.hunger - 30)
+            self.energy = max(0, self.energy - 20)
+            print(f"{self.name} successfully caught prey!")
+        else:
+            self.energy = max(0, self.energy - 15)
+            print(f"{self.name}'s hunt was unsuccessful.")
+            
+        return success
+
 # Example usage
 if __name__ == "__main__":
     pet = Animal("Max", "Dog", 3)
@@ -79,3 +148,15 @@ if __name__ == "__main__":
     pet.exercise(20)
     pet.sleep()
     pet.check_health()
+
+    parrot = Parrot("Polly", 5)
+    parrot.speak("Hello")
+    parrot.learn_word("Hello")
+    parrot.speak("Hello")
+    parrot.fly()
+    parrot.land()
+
+    eagle = Eagle("Eddie", 10)
+    eagle.hunt()
+    eagle.fly()
+    eagle.land()
