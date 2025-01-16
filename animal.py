@@ -96,21 +96,21 @@ class Bird(Animal):
         self.is_flying = False
         print(f"{self.name} has landed safely.")
 
-class Parrot(Bird):
+class Tucan(Bird):
     def __init__(self, name: str, age_years: int, vocabulary: List[str] = None):
-        super().__init__(name, "Parrot", age_years, wingspan=20.0)
+        super().__init__(name, "Tucan", age_years, wingspan=20.0)
         self.vocabulary = vocabulary or []
         self.favorite_foods = ["seeds", "fruits", "nuts"]
         
     def speak(self, word: str) -> None:
-        """Make the parrot speak a word from its vocabulary."""
+        """Make the Tucan speak a word from its vocabulary."""
         if word in self.vocabulary:
             print(f"{self.name} says: {word}")
         else:
             print(f"{self.name} doesn't know how to say '{word}'")
             
     def learn_word(self, word: str) -> None:
-        """Teach the parrot a new word."""
+        """Teach the Tucan a new word."""
         if word not in self.vocabulary:
             self.vocabulary.append(word)
             print(f"{self.name} learned to say '{word}'!")
@@ -209,12 +209,12 @@ if __name__ == "__main__":
     pet.sleep()
     pet.check_health()
 
-    parrot = Parrot("Polly", 5)
-    parrot.speak("Hello")
-    parrot.learn_word("Hello")
-    parrot.speak("Hello")
-    parrot.fly()
-    parrot.land()
+    tucan = Tucan("Polly", 5)
+    tucan.speak("Hello")
+    tucan.learn_word("Hello")
+    tucan.speak("Hello")
+    tucan.fly()
+    tucan.land()
 
     eagle = Eagle("Eddie", 10)
     eagle.hunt()
@@ -224,10 +224,10 @@ if __name__ == "__main__":
     zoo = Zoo("Wildlife Paradise")
     
     # Create and add animals
-    parrot = Parrot("Polly", 5)
+    tucan = Tucan("Polly", 5)
     eagle = Eagle("Eddie", 10)
     
-    zoo.add_animal(parrot)
+    zoo.add_animal(tucan)
     zoo.add_animal(eagle)
     
     # Test zoo operations
@@ -236,7 +236,7 @@ if __name__ == "__main__":
     zoo.exercise_all_animals()
     
     # Get specific animal groups
-    birds = zoo.get_animals_by_species("Parrot")
+    birds = zoo.get_animals_by_species("Tucan")
     hungry_animals = zoo.get_hungry_animals()
     
     # Print daily report
