@@ -1,6 +1,6 @@
 from enum import Enum
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 class ActivityState(Enum):
     SLEEPING = "sleeping"
@@ -140,6 +140,66 @@ class Eagle(Bird):
             
         return success
 
+class Zoo:
+    def __init__(self, name: str):
+        self.name = name
+        self.animals: List[Animal] = []
+        self.feeding_schedule: Dict[str, datetime] = {}
+        
+    def add_animal(self, animal: Animal) -> None:
+        """Add a new animal to the zoo."""
+        self.animals.append(animal)
+        print(f"{animal.name} the {animal.species} has been added to {self.name}")
+        
+    def remove_animal(self, animal: Animal) -> bool:
+        """Remove an animal from the zoo."""
+        if animal in self.animals:
+            self.animals.remove(animal)
+            print(f"{animal.name} has been removed from {self.name}")
+            return True
+        print(f"{animal.name} is not in {self.name}")
+        return False
+        
+    def feed_all_animals(self, amount: float = 30.0) -> None:
+        """Feed all animals in the zoo."""
+        for animal in self.animals:
+            animal.feed(amount)
+            self.feeding_schedule[animal.name] = datetime.now()
+            
+    def check_animals_health(self) -> None:
+        """Check health status of all animals."""
+        for animal in self.animals:
+            animal.check_health()
+            
+    def get_animals_by_species(self, species: str) -> List[Animal]:
+        """Get all animals of a specific species."""
+        return [animal for animal in self.animals if animal.species == species]
+        
+    def get_hungry_animals(self) -> List[Animal]:
+        """Get list of animals that need feeding (hunger > 70)."""
+        return [animal for animal in self.animals if animal.hunger > 70]
+        
+    def exercise_all_animals(self, intensity: float = 10.0) -> None:
+        """Exercise all animals with given intensity."""
+        for animal in self.animals:
+            animal.exercise(intensity)
+            
+    def daily_report(self) -> str:
+        """Generate a daily report of all animals' status."""
+        report = f"\nDaily Report for {self.name}\n"
+        report += "=" * 40 + "\n"
+        
+        for animal in self.animals:
+            report += f"\nName: {animal.name} ({animal.species})"
+            report += f"\nAge: {animal.age_years} years"
+            report += f"\nHealth: {animal.health}%"
+            report += f"\nHunger: {animal.hunger}%"
+            report += f"\nEnergy: {animal.energy}%"
+            report += f"\nState: {animal.activity_state.value}"
+            report += "\n" + "-" * 30
+            
+        return report
+
 # Example usage
 if __name__ == "__main__":
     pet = Animal("Max", "Dog", 3)
@@ -160,3 +220,24 @@ if __name__ == "__main__":
     eagle.hunt()
     eagle.fly()
     eagle.land()
+
+    zoo = Zoo("Wildlife Paradise")
+    
+    # Create and add animals
+    parrot = Parrot("Polly", 5)
+    eagle = Eagle("Eddie", 10)
+    
+    zoo.add_animal(parrot)
+    zoo.add_animal(eagle)
+    
+    # Test zoo operations
+    zoo.feed_all_animals()
+    zoo.check_animals_health()
+    zoo.exercise_all_animals()
+    
+    # Get specific animal groups
+    birds = zoo.get_animals_by_species("Parrot")
+    hungry_animals = zoo.get_hungry_animals()
+    
+    # Print daily report
+    print(zoo.daily_report())
