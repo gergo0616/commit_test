@@ -2,98 +2,80 @@ from enum import Enum
 from datetime import datetime
 from typing import List, Optional
 
-class MoodState(Enum):
-    HAPPY = "happy"
-    NEUTRAL = "neutral"
-    ANGRY = "angry"
-    SLEEPY = "sleepy"
+class ActivityState(Enum):
+    SLEEPING = "sleeping"
+    ACTIVE = "active"
+    EATING = "eating"
+    RESTING = "resting"
 
 class Animal:
-    def __init__(self, name: str, species: str, age: int):
+    def __init__(self, name: str, species: str, age_years: int):
         self.name = name
         self.species = species
-        self.age = age
+        self.age_years = age_years
+        self.energy = 50  # Scale 0-100
         self.hunger = 50  # Scale 0-100
-        self.thirst = 50  # Scale 0-100
-        self.energy = 100  # Scale 0-100
-        self.mood = MoodState.NEUTRAL
+        self.health = 100  # Scale 0-100
+        self.activity_state = ActivityState.RESTING
         self.last_fed: Optional[datetime] = None
         self.favorite_foods: List[str] = []
         self.weight = 0.0
         
-    def feed(self, food: str, amount: float) -> bool:
-        """Feed the animal with specified food and amount."""
+    def feed(self, amount: float) -> bool:
+        """Feed the animal."""
         if self.hunger < 20:
             print(f"{self.name} is not hungry right now!")
             return False
             
         self.hunger = max(0, self.hunger - amount)
-        self.energy += amount * 0.5
-        self.weight += amount * 0.1
+        self.energy = min(100, self.energy + amount * 0.2)
         self.last_fed = datetime.now()
         
-        if food in self.favorite_foods:
-            self.mood = MoodState.HAPPY
-            print(f"{self.name} really enjoyed the {food}!")
+        if self.energy > 80:
+            self.activity_state = ActivityState.ACTIVE
+            print(f"{self.name} is now active and playful!")
         
-        print(f"{self.name} has been fed {amount} of {food}")
+        print(f"{self.name} has been fed {amount} units of food")
         return True
         
-    def drink(self, amount: float) -> None:
-        """Give the animal water to drink."""
-        self.thirst = max(0, self.thirst - amount)
-        print(f"{self.name} drank some water. Thirst level: {self.thirst}")
+    def exercise(self, intensity: float) -> None:
+        """Exercise the animal to maintain health."""
+        self.energy = max(0, self.energy - intensity)
+        self.weight = max(0, self.weight - intensity * 0.1)
+        print(f"{self.name} exercised. Energy level: {self.energy}")
         
-    def sleep(self, hours: float) -> None:
-        """Let the animal sleep for specified hours."""
-        if self.energy >= 90:
-            print(f"{self.name} is not tired!")
+    def sleep(self) -> None:
+        """Let the animal sleep to recover energy."""
+        if self.energy > 80:
+            print(f"{self.name} is not tired enough to sleep!")
             return
             
-        self.energy = min(100, self.energy + hours * 10)
-        self.hunger += hours * 5
-        self.thirst += hours * 3
-        self.mood = MoodState.NEUTRAL
-        print(f"{self.name} slept for {hours} hours. Energy level: {self.energy}")
-        
-    def play(self, duration: float) -> None:
-        """Play with the animal for specified duration."""
-        if self.energy < 20:
-            print(f"{self.name} is too tired to play!")
-            return
-            
-        self.energy = max(0, self.energy - duration * 10)
-        self.hunger += duration * 5
-        self.thirst += duration * 5
-        self.mood = MoodState.HAPPY
-        self.weight = max(0, self.weight - duration * 0.1)
-        print(f"{self.name} played for {duration} hours! They're very happy!")
+        self.activity_state = ActivityState.SLEEPING
+        self.energy = min(100, self.energy + 30)
+        print(f"{self.name} is sleeping soundly")
         
     def add_favorite_food(self, food: str) -> None:
-        """Add a new favorite food for the animal."""
+        """Add a favorite food for the animal."""
         if food not in self.favorite_foods:
             self.favorite_foods.append(food)
+            print(f"{self.name} now likes {food}")
             
-    def get_status(self) -> dict:
-        """Return the current status of the animal."""
-        return {
-            "name": self.name,
-            "species": self.species,
-            "age": self.age,
-            "hunger": self.hunger,
-            "thirst": self.thirst,
-            "energy": self.energy,
-            "mood": self.mood.value,
-            "weight": self.weight,
-            "last_fed": self.last_fed
-        }
+    def check_health(self) -> None:
+        """Check the animal's health status."""
+        if self.health < 50:
+            print(f"Warning: {self.name} needs medical attention!")
+        elif self.energy < 20:
+            print(f"Warning: {self.name} is very tired!")
+        elif self.hunger > 80:
+            print(f"Warning: {self.name} is very hungry!")
+        else:
+            print(f"{self.name} is in good health!")
 
 # Example usage
 if __name__ == "__main__":
-    lion = Animal("Leo", "Lion", 5)
-    lion.add_favorite_food("meat")
-    lion.feed("meat", 30)
-    lion.drink(40)
-    lion.play(2)
-    lion.sleep(5)
-    print(lion.get_status())
+    pet = Animal("Max", "Dog", 3)
+    pet.add_favorite_food("meat")
+    pet.feed(30)
+    pet.exercise(20)
+    pet.sleep()
+    pet.check_health()
