@@ -1,6 +1,9 @@
 from enum import Enum
 from datetime import datetime
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
+import json
+import os
+from pathlib import Path
 
 class ActivityState(Enum):
     SLEEPING = "sleeping"
@@ -21,6 +24,35 @@ class Animal:
         self.favorite_foods: List[str] = []
         self.weight = 0.0
         
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert animal instance to dictionary for serialization."""
+        return {
+            "class": self.__class__.__name__,
+            "name": self.name,
+            "species": self.species,
+            "age_years": self.age_years,
+            "energy": self.energy,
+            "hunger": self.hunger,
+            "health": self.health,
+            "activity_state": self.activity_state.value,
+            "last_fed": self.last_fed.isoformat() if self.last_fed else None,
+            "favorite_foods": self.favorite_foods,
+            "weight": self.weight
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Animal':
+        """Create an animal instance from dictionary."""
+        animal = cls(data["name"], data["species"], data["age_years"])
+        animal.energy = data["energy"]
+        animal.hunger = data["hunger"]
+        animal.health = data["health"]
+        animal.activity_state = ActivityState(data["activity_state"])
+        animal.last_fed = datetime.fromisoformat(data["last_fed"]) if data["last_fed"] else None
+        animal.favorite_foods = data["favorite_foods"]
+        animal.weight = data["weight"]
+        return animal
+    
     def feed(self, amount: float) -> bool:
         """Feed the animal."""
         if self.hunger < 20:
@@ -77,6 +109,23 @@ class Bird(Animal):
         self.wingspan = wingspan
         self.is_flying = False
         
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert bird instance to dictionary for serialization."""
+        data = super().to_dict()
+        data.update({
+            "wingspan": self.wingspan,
+            "is_flying": self.is_flying
+        })
+        return data
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Bird':
+        """Create a bird instance from dictionary."""
+        bird = super().from_dict(data)
+        bird.wingspan = data["wingspan"]
+        bird.is_flying = data["is_flying"]
+        return bird
+    
     def fly(self) -> None:
         """Make the bird fly."""
         if self.energy < 20:
@@ -102,6 +151,27 @@ class Tucan(Bird):
         self.vocabulary = vocabulary or []
         self.favorite_foods = ["seeds", "fruits", "nuts"]
         
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert tucan instance to dictionary for serialization."""
+        data = super().to_dict()
+        data.update({
+            "vocabulary": self.vocabulary
+        })
+        return data
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Tucan':
+        """Create a tucan instance from dictionary."""
+        tucan = cls(data["name"], data["age_years"], data["vocabulary"])
+        tucan.energy = data["energy"]
+        tucan.hunger = data["hunger"]
+        tucan.health = data["health"]
+        tucan.activity_state = ActivityState(data["activity_state"])
+        tucan.last_fed = datetime.fromisoformat(data["last_fed"]) if data["last_fed"] else None
+        tucan.wingspan = data["wingspan"]
+        tucan.is_flying = data["is_flying"]
+        return tucan
+    
     def speak(self, word: str) -> None:
         """Make the Tucan speak a word from its vocabulary."""
         if word in self.vocabulary:
@@ -121,6 +191,28 @@ class Eagle(Bird):
         self.favorite_foods = ["fish", "small mammals"]
         self.hunting_success_rate = 0.8
         
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert eagle instance to dictionary for serialization."""
+        data = super().to_dict()
+        data.update({
+            "hunting_success_rate": self.hunting_success_rate
+        })
+        return data
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Eagle':
+        """Create an eagle instance from dictionary."""
+        eagle = cls(data["name"], data["age_years"])
+        eagle.energy = data["energy"]
+        eagle.hunger = data["hunger"]
+        eagle.health = data["health"]
+        eagle.activity_state = ActivityState(data["activity_state"])
+        eagle.last_fed = datetime.fromisoformat(data["last_fed"]) if data["last_fed"] else None
+        eagle.wingspan = data["wingspan"]
+        eagle.is_flying = data["is_flying"]
+        eagle.hunting_success_rate = data["hunting_success_rate"]
+        return eagle
+    
     def hunt(self) -> bool:
         """Make the eagle hunt for prey."""
         if self.energy < 30:
@@ -146,6 +238,56 @@ class Zoo:
         self.animals: List[Animal] = []
         self.feeding_schedule: Dict[str, datetime] = {}
         
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert zoo instance to dictionary for serialization."""
+        return {
+            "name": self.name,
+            "animals": [animal.to_dict() for animal in self.animals],
+            "feeding_schedule": {
+                name: time.isoformat() 
+                for name, time in self.feeding_schedule.items()
+            }
+        }
+        
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Zoo':
+        """Create a zoo instance from dictionary."""
+        zoo = cls(data["name"])
+        
+        # Create appropriate animal instances based on class
+        for animal_data in data["animals"]:
+            animal_class = globals()[animal_data["class"]]
+            animal = animal_class.from_dict(animal_data)
+            zoo.animals.append(animal)
+            
+        # Restore feeding schedule
+        zoo.feeding_schedule = {
+            name: datetime.fromisoformat(time)
+            for name, time in data["feeding_schedule"].items()
+        }
+        
+        return zoo
+        
+    def save_to_file(self, filepath: str) -> None:
+        """Save zoo state to a JSON file."""
+        data = self.to_dict()
+        
+        # Ensure directory exists
+        Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=4)
+        print(f"Zoo state saved to {filepath}")
+        
+    @classmethod
+    def load_from_file(cls, filepath: str) -> 'Zoo':
+        """Load zoo state from a JSON file."""
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+        zoo = cls.from_dict(data)
+        print(f"Zoo state loaded from {filepath}")
+        return zoo
+    
     def add_animal(self, animal: Animal) -> None:
         """Add a new animal to the zoo."""
         self.animals.append(animal)
@@ -235,9 +377,9 @@ if __name__ == "__main__":
     zoo.check_animals_health()
     zoo.exercise_all_animals()
     
-    # Get specific animal groups
-    birds = zoo.get_animals_by_species("Tucan")
-    hungry_animals = zoo.get_hungry_animals()
+    # Save zoo state
+    zoo.save_to_file("zoo_state.json")
     
-    # Print daily report
-    print(zoo.daily_report())
+    # Load zoo state
+    loaded_zoo = Zoo.load_from_file("zoo_state.json")
+    print(loaded_zoo.daily_report())
