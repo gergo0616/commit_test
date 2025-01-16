@@ -140,6 +140,63 @@ class Eagle(Bird):
             
         return success
 
+class Zoo:
+    def __init__(self, name: str):
+        self.name = name
+        self.animals: List[Animal] = []
+        self.animal_count = 0
+        
+    def add_animal(self, animal: Animal) -> None:
+        """Add a new animal to the zoo."""
+        self.animals.append(animal)
+        self.animal_count += 1
+        print(f"Welcome {animal.name} to {self.name}!")
+        
+    def remove_animal(self, animal: Animal) -> bool:
+        """Remove an animal from the zoo."""
+        if animal in self.animals:
+            self.animals.remove(animal)
+            self.animal_count -= 1
+            print(f"Goodbye {animal.name}!")
+            return True
+        return False
+        
+    def feed_all_animals(self, amount: float) -> None:
+        """Feed all animals in the zoo."""
+        print(f"Feeding time at {self.name}!")
+        for animal in self.animals:
+            animal.feed(amount)
+            
+    def exercise_all_animals(self, intensity: float) -> None:
+        """Exercise all animals in the zoo."""
+        print(f"Exercise time at {self.name}!")
+        for animal in self.animals:
+            animal.exercise(intensity)
+            
+    def get_animals_by_species(self, species: str) -> List[Animal]:
+        """Get all animals of a specific species."""
+        return [animal for animal in self.animals if animal.species == species]
+        
+    def get_hungry_animals(self) -> List[Animal]:
+        """Get all animals that are hungry (hunger > 70)."""
+        return [animal for animal in self.animals if animal.hunger > 70]
+        
+    def get_tired_animals(self) -> List[Animal]:
+        """Get all animals that are tired (energy < 30)."""
+        return [animal for animal in self.animals if animal.energy < 30]
+        
+    def daily_maintenance(self) -> None:
+        """Perform daily maintenance for all animals."""
+        print(f"Starting daily maintenance at {self.name}...")
+        self.feed_all_animals(30)
+        self.exercise_all_animals(20)
+        for animal in self.animals:
+            animal.check_health()
+            
+    def __str__(self) -> str:
+        """String representation of the zoo."""
+        return f"{self.name} Zoo - Home to {self.animal_count} animals"
+
 # Example usage
 if __name__ == "__main__":
     pet = Animal("Max", "Dog", 3)
@@ -160,3 +217,23 @@ if __name__ == "__main__":
     eagle.hunt()
     eagle.fly()
     eagle.land()
+
+    zoo = Zoo("Wildlife Paradise")
+    
+    # Create and add animals
+    parrot = Parrot("Polly", 5)
+    eagle = Eagle("Eddie", 10)
+    
+    zoo.add_animal(parrot)
+    zoo.add_animal(eagle)
+    
+    # Demonstrate zoo operations
+    zoo.daily_maintenance()
+    
+    # Check specific species
+    birds = zoo.get_animals_by_species("Parrot")
+    print(f"Number of parrots: {len(birds)}")
+    
+    # Remove an animal
+    zoo.remove_animal(eagle)
+    print(zoo)
