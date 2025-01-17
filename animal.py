@@ -2,7 +2,6 @@ from enum import Enum
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 import json
-import os
 from pathlib import Path
 
 class ActivityState(Enum):
